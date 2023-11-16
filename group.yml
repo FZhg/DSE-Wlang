@@ -1,0 +1,18 @@
+# Enter your personal information and delete unused entries
+--- 
+- first: FIRST_NAME
+  last: LAST_NAME
+  watiam: WATIAM_ID
+  student: STUDENT_ID
+  email: email
+- first: FIRST_NAME
+  last: LAST_NAME
+  watiam: WATIAM_ID
+  student: STUDENT_ID
+  email: email
+- first: FIRST_NAME
+  last: LAST_NAME
+  watiam: WATIAM_ID
+  student: STUDENT_ID
+  email: email
+...

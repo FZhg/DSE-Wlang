@@ -5,14 +5,9 @@
   watiam: WATIAM_ID
   student: STUDENT_ID
   email: email
-- first: FIRST_NAME
-  last: LAST_NAME
-  watiam: WATIAM_ID
-  student: STUDENT_ID
-  email: email
-- first: FIRST_NAME
-  last: LAST_NAME
-  watiam: WATIAM_ID
-  student: STUDENT_ID
-  email: email
+- first: Fan
+  last: Zhang
+  watiam: m42zhang
+  student: 21019155
+  email: m42zhang@uwaterloo.ca
 ...

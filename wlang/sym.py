@@ -74,6 +74,7 @@ class SymState(object):
            Return None if no such state exists"""
         res = self._solver.check()
         if res != z3.sat:
+            self._is_infeasible = True
             return None
         model = self._solver.model()
         st = int.State()
@@ -145,13 +146,17 @@ class ProgramState:
 class DynamicSysExec(ast.AstVisitor):
     def __init__(self):
         super().__init__()
+        self.sym_visitor = SymExec()
+        self.concrete_visitor = Interpreter()
 
     # No need to visit expressions and atoms
 
-    def visit_Stmt(self, node, *args, **kwargs):
+    @staticmethod
+    def visit_Stmt(node, *args, **kwargs):
         return kwargs['states']  # PrintState and Skip
 
-    def _get_new_sym__state_kwarg(self, sym_state: SymState):
+    @staticmethod
+    def _get_new_sym__state_kwarg(sym_state: SymState):
         """
         used for the sym visitor to visit expressions
         """
@@ -159,7 +164,8 @@ class DynamicSysExec(ast.AstVisitor):
             'state': sym_state
         }
 
-    def _get_new_concrete_state_kwarg(self, concrete_state: ConcreteState):
+    @staticmethod
+    def _get_new_concrete_state_kwarg(concrete_state: ConcreteState):
         return {
             'state': concrete_state
         }
@@ -174,25 +180,38 @@ class DynamicSysExec(ast.AstVisitor):
             # sym exec
             sym_state = state.get_sym_state()
             new_sym_state_kwargs = self._get_new_sym__state_kwarg(sym_state)
-            sym_visitor = SymExec()
-            rhs_sym_expr = sym_visitor.visit(node.rhs, **new_sym_state_kwargs)
+            rhs_sym_expr = self.sym_visitor.visit(node.rhs, **new_sym_state_kwargs)
 
             # concrete exec
             concrete_state = state.get_concrete_state()
             new_concrete_state_kwargs = self._get_new_concrete_state_kwarg(concrete_state)
-            concrete_visitor = Interpreter()
-            rhs_concrete_value = concrete_visitor.visit(node.rhs, **new_concrete_state_kwargs)
+            rhs_concrete_value = self.concrete_visitor.visit(node.rhs, **new_concrete_state_kwargs)
 
             state.update_variable(node.lhs.name, rhs_sym_expr, rhs_concrete_value)
             states[index] = state
         return states
 
     def visit_IfStmt(self, node, *args, **kwargs):
-        pass
-
-
+        states = kwargs["states"]
+        for index, state in enumerate(states):
+            if state.is_error() or state.is_infeasible():
+                continue
+            # TODO:
+            # 1. use concrete value check condition
+            # 2. false, execute concrete + symbolic to the else branch;
+            # use solver to pick the concrete value for the then branch
+            # 3. true, execute concrete + symbolic to the then branch;
+            # use solver to pick the concrete value for the else branch
+            concrete_state = state.get_concrete_state()
+            new_concrete_state_kwargs = self._get_new_concrete_state_kwarg(concrete_state)
+            concrete_condition = self.concrete_visitor.visit(node.cond)
+            if concrete_condition:
+                pass
+            else:
+                pass
 
     def visit_WhileStmt(self, node, *args, **kwargs):
+        # TODO: Jimmy
         pass
 
 

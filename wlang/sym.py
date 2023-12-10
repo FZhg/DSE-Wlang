@@ -19,13 +19,12 @@
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 import io
-import sys
 import logging
+import sys
 import z3
 
-from wlang.int import State, Interpreter
+from wlang.dynamic_sym import ConcreteState
 from . import ast, int, undef_visitor
 
 
@@ -77,10 +76,11 @@ class SymState(object):
             self._is_infeasible = True
             return None
         model = self._solver.model()
-        st = int.State()
-        for (k, v) in self.env.items():
-            st.env[k] = model.eval(v)
-        return st
+        concrete_state = ConcreteState()
+        for (variable_name, symbolic_expression) in self.env.items():
+            concrete_value = model.eval(symbolic_expression)
+            concrete_state.update_variables(variable_name, concrete_value)
+        return concrete_state
 
     def fork(self):
         """Fork the current state into two identical states that can evolve separately"""
@@ -371,7 +371,7 @@ def _parse_args():
 def main():
     args = _parse_args()
     prg = ast.parse_file(args.in_file)
-    st = ProgramState()
+    st = SymState()
     sym = SymExec()
 
     states = sym.run(prg, st)

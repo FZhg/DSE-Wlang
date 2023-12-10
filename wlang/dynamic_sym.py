@@ -182,3 +182,16 @@ class DynamicSysExec(ast.AstVisitor):
     def visit_WhileStmt(self, node, *args, **kwargs):
         # TODO: Jimmy
         pass
+
+    def visit_AssertStmt(self, node, *args, **kwargs):
+        pass
+
+    def visit_AssumeStmt(self, node, *args, **kwargs):
+        pass
+
+    def visit_HavocStmt(self, node, *args, **kwargs):
+        pass
+
+    def visit_StmtList(self, node, *args, **kwargs):
+        pass
+

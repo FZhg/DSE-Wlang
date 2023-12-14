@@ -3,6 +3,7 @@ import z3
 from wlang import ast
 from wlang.int import State, Interpreter
 from wlang.sym import SymExec, SymState
+from wlang.undef_visitor import UndefVisitor
 
 
 # TOD0: Smart concretization: set timeout for z3 and pick concrete values to proceed
@@ -27,9 +28,11 @@ class ProgramState:
         else:
             self.concrete_state = concrete_state
 
-    def update_variable(self, variable_name: str, sym_expression, concrete_value: int):
-        self.sym_state.update_variable(variable_name, sym_expression)
+    def update_variable_concrete(self, variable_name: str, concrete_value: int):
         self.concrete_state.update_variables(variable_name, concrete_value)
+
+    def update_variable_symbolic(self, variable_name: str, sym_expression):
+        self.sym_state.update_variable(variable_name, sym_expression)
 
     def get_sym_state(self):
         return self.sym_state
@@ -60,6 +63,12 @@ class ProgramState:
 
     def add_path_condition(self, *exp):
         self.sym_state.add_pc(*exp)
+
+    def are_variable_symbolic(self, *variable_nodes):
+        for variable_node in variable_nodes:
+            if variable_node.name in self.sym_state.env:
+                return True
+        return False
 
 
 class DynamicSysExec(ast.AstVisitor):
@@ -99,25 +108,31 @@ class DynamicSysExec(ast.AstVisitor):
             'program_states': program_states
         }
 
+    @staticmethod
+    def _is_expression_symbolic(expression_node, program_state):
+        undef_visitor = UndefVisitor()
+        undef_visitor.visit(expression_node)
+        used_variables = undef_visitor.get_defs()
+        return program_state.is_expression_symbolic(used_variables)
+
     def visit_AsgnStmt(self, node, *args, **kwargs):
         states = kwargs["states"]
         for index, state in enumerate(states):
             if state.is_error() or state.is_infeasible():
                 continue
-            # TODO: run things concretely if the variables used are only concrete (Fix it ASAP)
-            # TODO: sym visitor + concrete visitor
-            # TODO: modifies the update_variable method to take both sym and con states
-            # sym exec
-            sym_state = state.get_sym_state()
-            new_sym_state_kwargs = self._get_new_sym_state_kwargs(sym_state)
-            rhs_sym_expr = self.sym_visitor.visit(node.rhs, **new_sym_state_kwargs)
 
             # concrete exec
             concrete_state = state.get_concrete_state()
             new_concrete_state_kwargs = self._get_new_concrete_state_kwargs(concrete_state)
             rhs_concrete_value = self.concrete_visitor.visit(node.rhs, **new_concrete_state_kwargs)
+            state.update_variable_concrete(node.lhs.name, rhs_concrete_value)
 
-            state.update_variable(node.lhs.name, rhs_sym_expr, rhs_concrete_value)
+            if self._is_expression_symbolic(node.rhs, state):
+                # sym exec
+                sym_state = state.get_sym_state()
+                new_sym_state_kwargs = self._get_new_sym_state_kwargs(sym_state)
+                rhs_sym_expr = self.sym_visitor.visit(node.rhs, **new_sym_state_kwargs)
+                state.update_variable_symbolic(node.lhs.name, rhs_sym_expr)
             states[index] = state
         return states
 
@@ -202,4 +217,3 @@ class DynamicSysExec(ast.AstVisitor):
     def visit_StmtList(self, node, *args, **kwargs):
         # TODO: Fan
         pass
-

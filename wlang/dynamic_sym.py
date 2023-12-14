@@ -5,6 +5,8 @@ from wlang.int import State, Interpreter
 from wlang.sym import SymExec, SymState
 
 
+# TOD0: Smart concretization: set timeout for z3 and pick concrete values to proceed
+
 class ConcreteState(State):
     def __init__(self):
         super().__init__()
@@ -102,6 +104,7 @@ class DynamicSysExec(ast.AstVisitor):
         for index, state in enumerate(states):
             if state.is_error() or state.is_infeasible():
                 continue
+            # TODO: run things concretely if the variables used are only concrete (Fix it ASAP)
             # TODO: sym visitor + concrete visitor
             # TODO: modifies the update_variable method to take both sym and con states
             # sym exec
@@ -184,14 +187,19 @@ class DynamicSysExec(ast.AstVisitor):
         pass
 
     def visit_AssertStmt(self, node, *args, **kwargs):
+        # TODO: Jimmy
+        # assert x > 1; x = 2; x = y ^ 2  + z ^3
         pass
 
     def visit_AssumeStmt(self, node, *args, **kwargs):
+        # TODO: Fan
         pass
 
     def visit_HavocStmt(self, node, *args, **kwargs):
+        # TODO: Jimmy
         pass
 
     def visit_StmtList(self, node, *args, **kwargs):
+        # TODO: Fan
         pass
 

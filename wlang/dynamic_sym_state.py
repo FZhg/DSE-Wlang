@@ -5,6 +5,13 @@ from wlang.sym import SymState
 class ConcreteState(State):
     def __init__(self):
         super().__init__()
+        self._is_error = False
+    
+    def is_error(self):
+        return self._is_error
+    
+    def mark_error(self):
+        self._is_error = True
 
     def update_variables(self, variable_name: str, value: int):
         self.env[variable_name] = value
@@ -35,7 +42,13 @@ class ProgramState:
         return self.concrete_state
 
     def is_error(self):
-        return self.sym_state.is_error()
+        return self.sym_state.is_error() || self.concrete_state.is_error()
+    
+    def mark_error_concrete(self):
+        self.concrete_state.mark_error()
+    
+    def mark_error_symbolic(self):
+        self.sym_state.mk_error()
 
     def is_infeasible(self):
         return self.sym_state.is_empty()
@@ -54,6 +67,10 @@ class ProgramState:
             return None  # infeasible
         new_state = ProgramState(new_sym_state, new_concrete_state)
         return self, new_state
+    
+    def concretize(self, state):
+        new_concrete_state = state.sym_state.pick_concrete()
+        self.concrete_state = new_concrete_state # new_concrete_state could be None
 
     def add_path_condition(self, *exp):
         self.sym_state.add_pc(*exp)

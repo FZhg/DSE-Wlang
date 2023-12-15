@@ -1,6 +1,6 @@
 import z3
 
-from dynamic_sym_state import ConcreteState, ProgramState
+from wlang.dynamic_sym_state import ConcreteState, ProgramState
 from wlang import ast
 from wlang.int import Interpreter
 from wlang.sym import SymExec, SymState
@@ -169,14 +169,26 @@ class DynamicSysExec(ast.AstVisitor):
             if state.is_error() or state.is_infeasible():
                 continue
             if not self._is_expression_symbolic(node.cond, state):
-                self.concrete_visitor.visit_AssumeStmt()
+                concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
+                if not concrete_condition:
+                    state.mark_error_concrete()
+                    states[index] = state
             else:
-                pass
+                concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
+                sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
+                state.add_path_conditions(sym_condition)
+                if not concrete_condition:
+                    state.concretize()
+                states[index] = state  # feasible or infeasible
 
     def visit_HavocStmt(self, node, *args, **kwargs):
         # TODO: Jimmy
         pass
 
     def visit_StmtList(self, node, *args, **kwargs):
-        # TODO: Fan
-        pass
+        states = kwargs["states"]
+        new_kwargs = dict(kwargs)
+        for stmt in node.stmts:
+            new_kwargs["states"] = states
+            states = self.visit(stmt, *args, **new_kwargs)
+        return states

@@ -24,7 +24,7 @@ import logging
 import sys
 import z3
 
-from wlang.dynamic_sym import ConcreteState
+from wlang.dynamic_sym_exe import ConcreteState
 from . import ast, int, undef_visitor
 
 

@@ -42,7 +42,7 @@ class ProgramState:
         return self.concrete_state
 
     def is_error(self):
-        return self.sym_state.is_error() || self.concrete_state.is_error()
+        return self.sym_state.is_error() or self.concrete_state.is_error()
     
     def mark_error_concrete(self):
         self.concrete_state.mark_error()

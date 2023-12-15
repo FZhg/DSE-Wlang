@@ -154,17 +154,14 @@ class DynamicSysExec(ast.AstVisitor):
         return states
 
     def visit_WhileStmt(self, node, *args, **kwargs):
-        # TODO: Jimmy
+        # TODO:
+
         pass
 
     def visit_AssertStmt(self, node, *args, **kwargs):
         # TODO: Jimmy
-        # assert x > 1; x = 2; x = y ^ 2  + z ^3
-        pass
-
-    def visit_AssumeStmt(self, node, *args, **kwargs):
+        # havoc x; assert x > 1; x = 2; x = y ^ 2  + z ^3
         states = kwargs["states"]
-        new_added_states = []
         for index, state in enumerate(states):
             if state.is_error() or state.is_infeasible():
                 continue
@@ -176,10 +173,38 @@ class DynamicSysExec(ast.AstVisitor):
             else:
                 concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
                 sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
+                state, counter_state = state.fork(sym_condition)
+                # TODO: use scope, push and pop for z3
+                # if concrete_condition is true, we know the sym_state is satisfiable
+                # but we want the sym_state to be valid
+                # add negation to the pc. if the not(pc) is unsatisfiable, then pc is valid
+                if counter_state is not None:
+                    state.mark_error_symbolic()
+                else:
+                    if not concrete_condition:
+                        state.concretize()
+                states[index] = state
+        return states
+
+    def visit_AssumeStmt(self, node, *args, **kwargs):
+        states = kwargs["states"]
+        for index, state in enumerate(states):
+            if state.is_error() or state.is_infeasible():
+                continue
+            if not self._is_expression_symbolic(node.cond, state):
+                concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
+                # assume 1 =2 ==> assume false
+                if not concrete_condition:
+                    state.mark_error_concrete()
+                    states[index] = state
+            else:
+                concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
+                sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
                 state.add_path_conditions(sym_condition)
                 if not concrete_condition:
                     state.concretize()
                 states[index] = state  # feasible or infeasible
+        return states
 
     def visit_HavocStmt(self, node, *args, **kwargs):
         # TODO: Jimmy

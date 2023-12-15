@@ -1,3 +1,5 @@
+from z3 import z3
+
 from wlang.int import State
 from wlang.sym import SymState
 
@@ -64,7 +66,7 @@ class ProgramState:
         new_sym_state.add_pc(z3.Not(condition))
         new_concrete_state = new_sym_state.pick_concrete()
         if new_concrete_state is None:
-            return None  # infeasible
+            return self, None  # infeasible
         new_state = ProgramState(new_sym_state, new_concrete_state)
         return self, new_state
     

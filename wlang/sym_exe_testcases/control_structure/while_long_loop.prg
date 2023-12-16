@@ -1,5 +1,5 @@
 havoc x;
-while x < 7 do {
+while x < 7  do {
     x :=  x + 1
 };
 x := x + 1

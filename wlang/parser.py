@@ -12,9 +12,7 @@
 
 
 from __future__ import generator_stop
-
 import sys
-
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu, leftrec, nomemo

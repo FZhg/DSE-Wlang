@@ -1,13 +1,9 @@
 # UTILITY FUNCTIONS FOR TESTING THE INTERPRETER
-import json
-import sys
-import unittest
-from types import NoneType
 
-from . import ast, stats_visitor, sym
-from . import int as interpret
+import unittest
 from pathlib import Path
-from typing import Optional
+
+from wlang import ast
 
 
 # return
@@ -38,25 +34,25 @@ def get_all_normal_exiting_testcases(file_paths: list[Path]) -> list[Path]:
 
 
 def run_all_normal_exiting_testcases(tester: unittest.TestCase, normal_exiting_testcases_paths: list[Path], do,
-                                     sym_engine):
+                                     engine, state_constructor):
     for testcase_path in normal_exiting_testcases_paths:
         with tester.subTest(msg=testcase_path.name, filepath=testcase_path):
             prg, expected_results = parse_test_case(testcase_path.as_posix())
-            #do(tester, sym_engine, prg, expected_results)
-            write_new_files(testcase_path.as_posix(), prg, sym_engine)
+            # do(tester, engine, prg, expected_results, state_constructor)
+            write_new_files(testcase_path.as_posix(), prg, engine, state_constructor)
 
 
-def write_new_files(path, prg, sym_engine: sym.SymExec):
+def write_new_files(path, prg, engine, state_constructor):
     abstract_syntax_tree = ast.parse_string(prg)
-    initial_state = sym.SymState()
-    end_states = sym_engine.run(abstract_syntax_tree, initial_state)
+    initial_state = state_constructor()
+    end_states = engine.run(abstract_syntax_tree, initial_state)
     result_str = get_str_result(states=end_states)
     file_content = prg + result_str
     with open(path, "w") as testcase_file:
         testcase_file.write(file_content)
 
 
-def get_str_result(states: list[sym.SymState]):
+def get_str_result(states):
     result_str = "________\n"
     for out in states:
         result_str += out.__str__()
@@ -66,37 +62,38 @@ def get_str_result(states: list[sym.SymState]):
 
 
 def check_program_states_all_normal_exiting_testcases(tester: unittest.TestCase, file_paths: list[Path],
-                                                      sym_engine: sym.SymExec):
+                                                      engine, state_constructor):
     run_all_normal_exiting_testcases(
         tester,
         file_paths,
         check_results,
-        sym_engine
+        engine,
+        state_constructor
     )
 
 
-def check_results(tester: unittest.TestCase, sym_engine, prg, expected_results):
+def check_results(tester: unittest.TestCase, engine, prg, expected_results, state_constructor):
     abstract_syntax_tree = ast.parse_string(prg)
-    initial_state = sym.SymState()
-    end_states = sym_engine.run(abstract_syntax_tree, initial_state)
+    initial_state = state_constructor()
+    end_states = engine.run(abstract_syntax_tree, initial_state)
     results_str = get_str_result(states=end_states)
     tester.assertEqual(results_str, expected_results)
 
 
 def run_all_error_exiting_testcases(tester: unittest.TestCase, file_paths: list[Path],
-                                    sym_engine: sym.SymExec):
+                                    engine, state_constructor):
     testcases_paths = [path for path in file_paths if "error" in path.as_posix() and "parsing" in path.as_posix()]
     for testcase_path in testcases_paths:
         with tester.subTest(msg=testcase_path.name, filepath=testcase_path):
             prg, expected_results = parse_test_case(testcase_path.as_posix())
             with tester.assertRaises(Exception):
-                check_results(tester, sym_engine, prg, expected_results)
+                check_results(tester, engine, prg, expected_results, state_constructor)
     testcases_paths = [path for path in file_paths if "error" in path.as_posix() and "parsing" not in path.as_posix()]
     for testcase_path in testcases_paths:
         with tester.subTest(msg=testcase_path.name, filepath=testcase_path):
             prg, expected_results = parse_test_case(testcase_path.as_posix())
-            check_results(tester, sym_engine, prg, expected_results)
-            #write_new_files(testcase_path.as_posix(), prg, sym_engine)
+            check_results(tester, engine, prg, expected_results, state_constructor)
+            # write_new_files(testcase_path.as_posix(), prg, engine, state_constructor)
 
 
 if __name__ == "__main__":

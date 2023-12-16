@@ -28,8 +28,11 @@ from . import ast
 
 
 class State(object):
-    def __init__(self):
-        self.env = dict()
+    def __init__(self, env=None):
+        if env is None:
+            self.env = dict()
+        else:
+            self.env = env
 
     def __repr__(self):
         repr(self.env)

@@ -2,8 +2,6 @@ import io
 
 from z3 import z3
 
-from wlang.concrete_state import ConcreteState
-
 
 class SymState(object):
     def __init__(self, solver=None):
@@ -45,19 +43,23 @@ class SymState(object):
         self._is_infeasible = (res == z3.unsat)
         return self._is_infeasible
 
-    def pick_concrete(self):
+    def pick_concrete(self, *symbolic_variables):
         """Pick a concrete state consistent with the symbolic state.
            Return None if no such state exists"""
         res = self._solver.check()
+        concrete_environment = {}
         if res != z3.sat:
             self._is_infeasible = True
-            return None
+            return concrete_environment
         model = self._solver.model()
-        concrete_state = ConcreteState()
-        for (variable_name, symbolic_expression) in self.env.items():
-            concrete_value = model.eval(symbolic_expression).as_long()
-            concrete_state.update_variables(variable_name, concrete_value)
-        return concrete_state
+        for variable in symbolic_variables:
+            rhs_expression = self.env[variable]
+            symbolic_rhs_value = model.eval(rhs_expression)
+            try:
+                concrete_environment[variable] = symbolic_rhs_value.as_long()
+            except AttributeError:
+                pass
+        return concrete_environment
 
     def fork(self):
         """Fork the current state into two identical states that can evolve separately"""
@@ -66,9 +68,6 @@ class SymState(object):
         child.add_pc(*self.path)
         child._is_infeasible = self._is_infeasible
         return self, child
-
-    def remove_variable(self, variable_name):
-        self.env.pop(variable_name)
 
     def __repr__(self):
         return str(self)

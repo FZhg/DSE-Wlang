@@ -25,7 +25,6 @@ class DynamicSysExec(ast.AstVisitor):
             state = ProgramState()
         states = [state]
         states = self.visit(abstract_syntax_tree, states=states)
-        print(states)
         normal_states = []
         for state in states:
             if state.is_error():
@@ -84,7 +83,7 @@ class DynamicSysExec(ast.AstVisitor):
         undef_visitor = UndefVisitor()
         undef_visitor.check(expression_node)
         used_variables = self.variable_extractor.get_variables(expression_node)
-        return program_state.are_variables_symbolic(*used_variables)
+        return program_state.is_any_variable_symbolic(*used_variables)
 
     def _execute_concrete_expression(self, expression_node, concrete_state):
         new_concrete_state_kwargs = self._get_new_concrete_state_kwargs(concrete_state)
@@ -107,16 +106,18 @@ class DynamicSysExec(ast.AstVisitor):
             state.update_variable_concrete(node.lhs.name, rhs_concrete_value)
 
             if self._is_expression_symbolic(node.rhs, state):
-                rhs_sym_expr = self._execute_symbolic_expression(node.rhs, state.get_sym_state())
-                state.update_variable_symbolic(node.lhs.name, rhs_sym_expr)
+                rhs_sym_expr = self._execute_symbolic_expression(node.rhs, state.get_symbolic_state())
+                state.mark_variable_symbolic(node.lhs.name)
             else:
+                rhs_sym_expr = z3.IntVal(rhs_concrete_value)
                 state.mark_variable_concrete(node.lhs.name)
+            state.update_variable_symbolic(node.lhs.name, rhs_sym_expr)
             states[index] = state
         return states
 
-    def _spawn_new_states(self, node, parent_state: ProgramState):
+    def _spawn_new_states(self, node, parent_state: ProgramState, **kwargs):
         new_kwargs = self._get_new_states_kwargs([parent_state])
-        new_states = self.visit(node, **new_kwargs)
+        new_states = self.visit(node, **new_kwargs, **kwargs)
         return new_states
 
     def visit_IfStmt(self, node, *args, **kwargs):
@@ -138,15 +139,17 @@ class DynamicSysExec(ast.AstVisitor):
             if not self._is_expression_symbolic(node.cond, state):
                 if concrete_condition:
                     # TODO: condition is always true
-                    new_then_state = self._spawn_new_states(node.then_stmt, state)
-                    states[index] = new_then_state
+                    new_then_states = self._spawn_new_states(node.then_stmt, state)
+                    states[index] = new_then_states[0]
+                    new_added_states.extend(new_then_states[1:])
                 else:
                     # TODO: condition is always false
                     if node.has_else():
-                        new_else_state = self._spawn_new_states(node.else_stmt, state)
-                        states[index] = new_else_state
+                        new_else_states = self._spawn_new_states(node.else_stmt, state)
+                        states[index] = new_else_states[0]
+                        new_added_states.extend(new_else_states[1:])
             else:
-                sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
+                sym_condition = self._execute_symbolic_expression(node.cond, state.get_symbolic_state())
 
                 if concrete_condition:
                     then_state, else_state = state.fork(sym_condition)
@@ -195,14 +198,14 @@ class DynamicSysExec(ast.AstVisitor):
             upstream_loop_unrolling_count = 0
             if "loop_unrolling_count" in kwargs.keys():
                 upstream_loop_unrolling_count = kwargs["loop_unrolling_count"]
-            if upstream_loop_unrolling_count > 10:
-                return states
 
             new_added_states = []
             for index, state in enumerate(states):
                 if state.is_error() or state.is_infeasible():
                     continue
                 if not self._is_expression_symbolic(node.cond, state):
+                    if upstream_loop_unrolling_count >= 10:
+                        continue
                     concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
                     if concrete_condition:
                         new_states = self._spawn_new_states(node.body, state)
@@ -210,7 +213,7 @@ class DynamicSysExec(ast.AstVisitor):
                         new_kwargs = self._get_new_while_stmt_kwargs(new_states, loop_unrolling_count)
                         new_states = self.visit_WhileStmt(node, **new_kwargs)
                         states[index] = new_states[0]
-                        new_added_states.extend(new_states)
+                        new_added_states.extend(new_states[1:])
                     else:
                         continue
                 else:
@@ -218,6 +221,9 @@ class DynamicSysExec(ast.AstVisitor):
                     symbolic_condition = self._execute_symbolic_expression(node.cond, state.get_symbolic_state())
                     if concrete_condition:
                         entering_loop_state, exiting_loop_state = state.fork(symbolic_condition)
+                        if upstream_loop_unrolling_count >= 10:
+                            states[index] = entering_loop_state
+                            continue
                         new_entering_loop_states = self._spawn_new_states(node.body, entering_loop_state)
 
                         # recursive visit while
@@ -232,9 +238,11 @@ class DynamicSysExec(ast.AstVisitor):
                     else:
                         exiting_loop_state, entering_loop_state = state.fork(z3.Not(symbolic_condition))
                         states[index] = exiting_loop_state
-
+                        if upstream_loop_unrolling_count >= 10:
+                            continue
                         if entering_loop_state is not None:
                             new_entering_loop_states = self._spawn_new_states(node.body, entering_loop_state)
+                            # recursive while
                             loop_unrolling_count = upstream_loop_unrolling_count + 1
                             new_kwargs = self._get_new_while_stmt_kwargs(new_entering_loop_states, loop_unrolling_count)
                             new_entering_loop_states = self.visit_WhileStmt(node, **new_kwargs)
@@ -254,7 +262,7 @@ class DynamicSysExec(ast.AstVisitor):
                     states[index] = state
             else:
                 concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
-                sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
+                sym_condition = self._execute_symbolic_expression(node.cond, state.get_symbolic_state())
                 state, counter_state = state.fork(sym_condition)
                 # TODO: use scope, push and pop for z3
                 # if concrete_condition is true, we know the sym_state is satisfiable
@@ -280,7 +288,7 @@ class DynamicSysExec(ast.AstVisitor):
                     states[index] = state
             else:
                 concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
-                sym_condition = self._execute_symbolic_expression(node.cond, state.get_sym_state())
+                sym_condition = self._execute_symbolic_expression(node.cond, state.get_symbolic_state())
                 state.add_path_conditions(sym_condition)
                 if not concrete_condition:
                     state.concretize()
@@ -292,9 +300,11 @@ class DynamicSysExec(ast.AstVisitor):
         for index, state in enumerate(states):
             if state.is_error() or state.is_infeasible():
                 continue
-            new_sym_state = self._execute_no_branching_stmt_symbolic(node, state.get_sym_state())
+            new_sym_state = self._execute_no_branching_stmt_symbolic(node, state.get_symbolic_state())
             new_concrete_state = self._execute_no_branching_stmt_concrete(node, state.get_concrete_state())
             new_state = ProgramState(new_sym_state, new_concrete_state)
+            for variable_node in node.vars:
+                new_state.mark_variable_symbolic(variable_node.name)
             states[index] = new_state
         return states
 

@@ -70,6 +70,7 @@ class Interpreter(ast.AstVisitor):
         if node.op == ">=":
             return lhs >= rhs
         if node.op == ">":
+
             return lhs > rhs
 
         assert False
@@ -171,6 +172,7 @@ class Interpreter(ast.AstVisitor):
         st = kwargs["state"]
         for v in node.vars:
             # assign 0 as the default value
+            # TODO: change 0 to random
             st.env[v.name] = 0
         return st
 

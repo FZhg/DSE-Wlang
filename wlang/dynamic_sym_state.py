@@ -1,25 +1,9 @@
 from z3 import z3
 
-from wlang.int import State
-from wlang.sym import SymState
+from wlang.concrete_state import ConcreteState
+from wlang.sym_state import SymState
 
 
-class ConcreteState(State):
-    def __init__(self):
-        super().__init__()
-        self._is_error = False
-    
-    def is_error(self):
-        return self._is_error
-    
-    def mark_error(self):
-        self._is_error = True
-
-    def update_variables(self, variable_name: str, value: int):
-        self.env[variable_name] = value
-
-
-# TODO: finish skeletons
 class ProgramState:
     def __init__(self, sym_state: SymState = None, concrete_state: ConcreteState = None):
         if sym_state is None:
@@ -45,10 +29,10 @@ class ProgramState:
 
     def is_error(self):
         return self.sym_state.is_error() or self.concrete_state.is_error()
-    
+
     def mark_error_concrete(self):
         self.concrete_state.mark_error()
-    
+
     def mark_error_symbolic(self):
         self.sym_state.mk_error()
 
@@ -69,16 +53,22 @@ class ProgramState:
             return self, None  # infeasible
         new_state = ProgramState(new_sym_state, new_concrete_state)
         return self, new_state
-    
-    def concretize(self, state):
-        new_concrete_state = state.sym_state.pick_concrete()
-        self.concrete_state = new_concrete_state # new_concrete_state could be None
 
-    def add_path_condition(self, *exp):
+    def concretize(self):
+        new_concrete_state = self.sym_state.pick_concrete()
+        self.concrete_state = new_concrete_state  # new_concrete_state could be None
+
+    def add_path_conditions(self, *exp):
         self.sym_state.add_pc(*exp)
 
     def are_variables_symbolic(self, *variable_nodes):
-        for variable_node in variable_nodes:
-            if variable_node.name in self.sym_state.env:
+        for variable_name in variable_nodes:
+            if variable_name in self.sym_state.env:
                 return True
         return False
+
+    def mark_variable_concrete(self, variable_name):
+        self.sym_state.remove_variable(variable_name)
+
+    def __str__(self):
+        return "sym_state:" + str(self.sym_state) + "\nconcrete_state:" + str(self.concrete_state)

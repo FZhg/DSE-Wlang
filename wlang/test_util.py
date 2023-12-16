@@ -23,7 +23,8 @@
 import unittest
 from . import util
 
-class UtilTest (unittest.TestCase):
-    def test_one (self):
+
+class UtilTest(unittest.TestCase):
+    def test_one(self):
         # TODO
-        self.assertTrue (True)
+        self.assertTrue(True)

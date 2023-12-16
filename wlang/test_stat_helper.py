@@ -42,8 +42,8 @@ def run_all_normal_exiting_testcases(tester: unittest.TestCase, normal_exiting_t
     for testcase_path in normal_exiting_testcases_paths:
         with tester.subTest(msg=testcase_path.name, filepath=testcase_path):
             prg, expected_results = parse_test_case(testcase_path.as_posix())
-            do(tester, sym_engine, prg, expected_results)
-            # write_new_files(testcase_path.as_posix(), prg, sym_engine)
+            #do(tester, sym_engine, prg, expected_results)
+            write_new_files(testcase_path.as_posix(), prg, sym_engine)
 
 
 def write_new_files(path, prg, sym_engine: sym.SymExec):
@@ -95,9 +95,8 @@ def run_all_error_exiting_testcases(tester: unittest.TestCase, file_paths: list[
     for testcase_path in testcases_paths:
         with tester.subTest(msg=testcase_path.name, filepath=testcase_path):
             prg, expected_results = parse_test_case(testcase_path.as_posix())
-            # check_results(tester, sym_engine, prg, expected_results)
-            write_new_files(testcase_path.as_posix(), prg, sym_engine)
-
+            check_results(tester, sym_engine, prg, expected_results)
+            #write_new_files(testcase_path.as_posix(), prg, sym_engine)
 
 
 if __name__ == "__main__":

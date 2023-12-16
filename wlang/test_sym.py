@@ -22,25 +22,27 @@
 
 import unittest
 
-from . import ast, sym
-from .test_helper import get_all_normal_exiting_testcases, check_program_states_all_normal_exiting_testcases, \
+from . import ast
+from .sym import SymExec
+from .sym_state import SymState
+from .test_stat_helper import get_all_normal_exiting_testcases, check_program_states_all_normal_exiting_testcases, \
     get_file_paths, run_all_error_exiting_testcases
 
 
 class TestSym (unittest.TestCase):
     def setUp(self):
-        self.sym_engine = sym.SymExec()
+        self.sym_engine = SymExec()
 
     def test_one(self):
-        prg1 = "havoc x; assume x > 10; assert x > 15"
+        prg1 = "havoc x; assume x > 20; assert x > 15"
         ast1 = ast.parse_string(prg1)
-        engine = sym.SymExec()
-        st = sym.SymState()
+        engine = SymExec()
+        st = SymState()
         out = [s for s in engine.run(ast1, st)]
         self.assertEquals(len(out), 1)
 
     def test_all_test_cases(self):
-        file_paths = get_file_paths("wlang/testcases")
+        file_paths = get_file_paths("wlang/sym_exe_testcases")
         normal_exiting_testcases_paths = get_all_normal_exiting_testcases(file_paths)
         check_program_states_all_normal_exiting_testcases(self, normal_exiting_testcases_paths, self.sym_engine)
         run_all_error_exiting_testcases(self, file_paths, self.sym_engine)
@@ -48,8 +50,8 @@ class TestSym (unittest.TestCase):
     def test_eighteen(self):
         prg1 = "havoc x, y; assume y >= 0; c := 0; r := x; while c < y inv c <= y and r < 1 do { r := r + 1; c := c + 1 }; assert r = x + y"
         ast1 = ast.parse_string(prg1)
-        engine = sym.SymExec()
-        st = sym.SymState()
+        engine = SymExec()
+        st = SymState()
         out = [s for s in engine.run(ast1, st)]
         print(out)
         self.assertEqual(len(out), 0)

@@ -3,8 +3,8 @@ assume x>1000;
 assert x>100
 ________
 sym_state:
-x: x!23
-pc: [1000 < x!23, 100 < x!23]
+x: x!33
+pc: [1000 < x!33, 100 < x!33]
 
 concrete_state:
 x: 1001

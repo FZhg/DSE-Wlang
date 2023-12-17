@@ -6,14 +6,14 @@ x := 2
 ________
 sym_state:
 x: 2
-pc: [-2 < x!29]
+pc: [-2 < x!39]
 
 concrete_state:
 x: 2
 ________
 sym_state:
 x: 2
-pc: [Not(-2 < x!29)]
+pc: [Not(-2 < x!39)]
 
 concrete_state:
 x: 2

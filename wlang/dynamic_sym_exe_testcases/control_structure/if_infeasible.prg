@@ -8,7 +8,7 @@ if x < 0 then {
 ________
 sym_state:
 x: 2
-pc: [1 < x!28, Not(0 > x!28)]
+pc: [1 < x!38, Not(0 > x!38)]
 
 concrete_state:
 x: 2

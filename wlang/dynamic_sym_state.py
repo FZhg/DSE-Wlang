@@ -37,7 +37,6 @@ class ProgramState:
     def get_concrete_state(self):
         return self.concrete_state
 
-
     def is_error(self):
         return self.sym_state.is_error() or self.concrete_state.is_error()
 
@@ -66,9 +65,9 @@ class ProgramState:
         return self, new_state
 
     def concretize(self):
-        new_concrete_environment = self.sym_state.pick_concrete(*self._symbolic_variables)
+        new_concrete_environment = self.sym_state.pick_concrete(self._symbolic_variables, self.concrete_state.env)
         if not self.is_infeasible():
-            self.concrete_state.env = self.concrete_state.env | new_concrete_environment  # new_concrete_state could be None
+            self.concrete_state.env = new_concrete_environment  # new_concrete_state could be None
 
     def add_path_conditions(self, *exp):
         self.sym_state.add_pc(*exp)

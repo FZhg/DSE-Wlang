@@ -5,15 +5,15 @@ while x < 20 do {
 }
 ________
 sym_state:
-x: x!35
-pc: [20 > x!34, 30 < x!35, Not(20 > x!35)]
+x: x!45
+pc: [20 > x!44, 30 < x!45, Not(20 > x!45)]
 
 concrete_state:
 x: 31
 ________
 sym_state:
-x: x!34
-pc: [Not(20 > x!34)]
+x: x!44
+pc: [Not(20 > x!44)]
 
 concrete_state:
 x: 20

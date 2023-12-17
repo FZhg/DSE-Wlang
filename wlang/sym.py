@@ -1,7 +1,7 @@
 import logging
 import sys
 
-import z3
+from z3 import z3
 
 from wlang import ast, undef_visitor
 from wlang.sym_state import SymState

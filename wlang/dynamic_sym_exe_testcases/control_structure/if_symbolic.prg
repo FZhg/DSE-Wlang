@@ -11,17 +11,17 @@ if y > 1 then {
 ________
 sym_state:
 x: 10
-y: y!313
-pc: [Not(1 < y!313)]
+y: y!288
+pc: [Not(1 < y!288)]
 
 concrete_state:
 x: 10
 y: 0
 ________
 sym_state:
-x: 1 + y!313
-y: y!313
-pc: [Not(Not(1 < y!313))]
+x: 1 + y!288
+y: y!288
+pc: [Not(Not(1 < y!288))]
 
 concrete_state:
 x: 3

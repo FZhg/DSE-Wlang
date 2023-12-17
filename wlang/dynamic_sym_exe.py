@@ -1,7 +1,7 @@
 import logging
 import sys
 
-import z3
+from z3 import z3
 from wlang.dynamic_sym_state import ConcreteState, ProgramState
 from wlang import ast
 from wlang.int import Interpreter

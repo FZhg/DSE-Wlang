@@ -1,8 +1,8 @@
 havoc x, y
 
 ________
-x: x!275
-y: y!276
+x: x!0
+y: y!1
 pc: []
 ________
 num_states: 1

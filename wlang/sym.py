@@ -211,7 +211,7 @@ class SymExec(ast.AstVisitor):
             new_kwargs = dict(kwargs)
             new_kwargs["state"] = state
             condition = self.visit(node.cond, *args, **new_kwargs)
-            _, counter_state = state.fork()
+            state, counter_state = state.fork()
             counter_condition = z3.Not(condition)
             counter_state.add_pc(counter_condition)
             if counter_state.is_empty():

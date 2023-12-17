@@ -22,6 +22,8 @@
 
 import unittest
 
+from z3 import z3
+
 from . import ast
 from .sym import SymExec
 from .sym_state import SymState
@@ -29,7 +31,7 @@ from wlang.test_helper import get_all_normal_exiting_testcases, check_program_st
     get_file_paths, run_all_error_exiting_testcases
 
 
-class TestSym (unittest.TestCase):
+class TestSym(unittest.TestCase):
     def setUp(self):
         self.sym_engine = SymExec()
         self.state_constructor = SymState
@@ -40,12 +42,13 @@ class TestSym (unittest.TestCase):
         engine = SymExec()
         st = SymState()
         out = [s for s in engine.run(ast1, st)]
-        self.assertEquals(len(out), 1)
+        self.assertEqual(len(out), 1)
 
     def test_all_test_cases(self):
         file_paths = get_file_paths("wlang/sym_exe_testcases")
         normal_exiting_testcases_paths = get_all_normal_exiting_testcases(file_paths)
-        check_program_states_all_normal_exiting_testcases(self, normal_exiting_testcases_paths, self.sym_engine, self.state_constructor)
+        check_program_states_all_normal_exiting_testcases(self, normal_exiting_testcases_paths, self.sym_engine,
+                                                          self.state_constructor)
         run_all_error_exiting_testcases(self, file_paths, self.sym_engine, self.state_constructor)
 
     def test_eighteen(self):
@@ -56,5 +59,6 @@ class TestSym (unittest.TestCase):
         out = [s for s in engine.run(ast1, st)]
         print(out)
         self.assertEqual(len(out), 0)
+
 
 

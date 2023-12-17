@@ -63,9 +63,10 @@ class SymState(object):
 
     def fork(self):
         """Fork the current state into two identical states that can evolve separately"""
-        child = SymState()
+        child_solver = z3.Solver()
+        child_solver = self._solver.translate(child_solver.ctx)
+        child = SymState(solver=child_solver)
         child.env = dict(self.env)
-        child.add_pc(*self.path)
         child._is_infeasible = self._is_infeasible
         return self, child
 

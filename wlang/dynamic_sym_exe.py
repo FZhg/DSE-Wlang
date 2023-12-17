@@ -159,7 +159,7 @@ class DynamicSysExec(ast.AstVisitor):
                     new_added_states.extend(new_then_states[1:])
 
                     # else branch
-                    if else_state is None:
+                    if else_state.is_infeasible():
                         pass
                     # else branch is infeasible
                     # TODO: condition is always false
@@ -181,7 +181,7 @@ class DynamicSysExec(ast.AstVisitor):
                         states[index] = else_state
 
                     # then branch
-                    if then_state is None:
+                    if then_state.is_infeasible():
                         # TODO: condition is always true
                         pass  # the then branch is infeasible
                     else:
@@ -233,14 +233,14 @@ class DynamicSysExec(ast.AstVisitor):
 
                         states[index] = new_entering_loop_states[0]
                         new_added_states.extend(new_entering_loop_states[1:])
-                        if exiting_loop_state is not None:
+                        if not exiting_loop_state.is_infeasible():
                             new_added_states.append(exiting_loop_state)
                     else:
                         exiting_loop_state, entering_loop_state = state.fork(z3.Not(symbolic_condition))
                         states[index] = exiting_loop_state
                         if upstream_loop_unrolling_count >= 10:
                             continue
-                        if entering_loop_state is not None:
+                        if not entering_loop_state.is_infeasible():
                             new_entering_loop_states = self._spawn_new_states(node.body, entering_loop_state)
                             # recursive while
                             loop_unrolling_count = upstream_loop_unrolling_count + 1

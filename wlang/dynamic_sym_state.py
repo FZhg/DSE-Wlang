@@ -37,8 +37,6 @@ class ProgramState:
     def get_concrete_state(self):
         return self.concrete_state
 
-    def get_concrete_value(self, variable_name: str):
-        return self.concrete_state.env[variable_name]
 
     def is_error(self):
         return self.sym_state.is_error() or self.concrete_state.is_error()

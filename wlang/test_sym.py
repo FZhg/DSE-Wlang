@@ -51,13 +51,20 @@ class TestSym(unittest.TestCase):
                                                           self.state_constructor)
         run_all_error_exiting_testcases(self, file_paths, self.sym_engine, self.state_constructor)
 
+    def test_if(self):
+        prg1 = "havoc x; if x > 20 then x := x + 1 else x := x -1"
+        ast1 = ast.parse_string(prg1)
+        engine = SymExec()
+        st = SymState()
+        out = [s for s in engine.run(ast1, st)]
+        self.assertEqual(len(out), 2)
+
     def test_eighteen(self):
         prg1 = "havoc x, y; assume y >= 0; c := 0; r := x; while c < y inv c <= y and r < 1 do { r := r + 1; c := c + 1 }; assert r = x + y"
         ast1 = ast.parse_string(prg1)
         engine = SymExec()
         st = SymState()
         out = [s for s in engine.run(ast1, st)]
-        print(out)
         self.assertEqual(len(out), 0)
 
 

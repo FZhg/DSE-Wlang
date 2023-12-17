@@ -66,6 +66,7 @@ class SymState(object):
         child_solver = z3.Solver()
         child_solver = self._solver.translate(child_solver.ctx)
         child = SymState(solver=child_solver)
+        child.path = self.path.copy()
         child.env = dict(self.env)
         child._is_infeasible = self._is_infeasible
         return self, child

@@ -160,8 +160,7 @@ class DynamicSysExec(ast.AstVisitor):
 
                     # else branch
                     if else_state.is_infeasible():
-                        pass
-                    # else branch is infeasible
+                        new_added_states.append(else_state)
                     # TODO: condition is always false
                     else:
                         if node.has_else():
@@ -183,7 +182,7 @@ class DynamicSysExec(ast.AstVisitor):
                     # then branch
                     if then_state.is_infeasible():
                         # TODO: condition is always true
-                        pass  # the then branch is infeasible
+                        new_added_states.append(then_state)
                     else:
                         new_then_states = self._spawn_new_states(node.then_stmt, then_state)
                         new_added_states.extend(new_then_states)
@@ -233,8 +232,7 @@ class DynamicSysExec(ast.AstVisitor):
 
                         states[index] = new_entering_loop_states[0]
                         new_added_states.extend(new_entering_loop_states[1:])
-                        if not exiting_loop_state.is_infeasible():
-                            new_added_states.append(exiting_loop_state)
+                        new_added_states.append(exiting_loop_state)
                     else:
                         exiting_loop_state, entering_loop_state = state.fork(z3.Not(symbolic_condition))
                         states[index] = exiting_loop_state
@@ -247,6 +245,8 @@ class DynamicSysExec(ast.AstVisitor):
                             new_kwargs = self._get_new_while_stmt_kwargs(new_entering_loop_states, loop_unrolling_count)
                             new_entering_loop_states = self.visit_WhileStmt(node, **new_kwargs)
                             new_added_states.extend(new_entering_loop_states)
+                        else:
+                            new_added_states.append(entering_loop_state)
             states.extend(new_added_states)
             return states
 
@@ -271,9 +271,7 @@ class DynamicSysExec(ast.AstVisitor):
                 # add negation to the pc. if the not(pc) is unsatisfiable, then pc is valid
                 if not counter_state.is_infeasible():
                     state.mark_error_symbolic()
-                else:
-                    if not concrete_condition:
-                        state.concretize()
+                # no need to do concretization. If assert succeed, the concrete state will always satisfy the assertion.
                 states[index] = state
         return states
 

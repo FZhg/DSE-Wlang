@@ -11,9 +11,11 @@ class SymExec(ast.AstVisitor):
     def __init__(self):
         super().__init__()
 
-    def run(self, ast, state):
+    def run(self, ast, state=None):
         # set things up and
         # call self.visit (ast, states=states)
+        if state is None:
+            state = SymState()
         states = [state]
         states = self.visit(ast, states=states)
         normal_states = []

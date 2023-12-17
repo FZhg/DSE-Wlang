@@ -2,11 +2,6 @@ from wlang import ast
 
 
 class VariablesExtractor(ast.AstVisitor):
-    @staticmethod
-    def _get_variable_names_kwargs(variable_names):
-        return {
-            "variable_names": variable_names
-        }
 
     def get_variables(self, expression_node):
         variable_names = set()

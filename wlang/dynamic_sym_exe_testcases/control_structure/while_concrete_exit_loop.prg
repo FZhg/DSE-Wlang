@@ -1,13 +1,13 @@
 x := 10;
-while true do {
+while x < 17 do {
     x := x + 1
 }
 ________
 sym_state:
-x: 20
+x: 17
 pc: []
 
 concrete_state:
-x: 20
+x: 17
 ________
 num_states: 1

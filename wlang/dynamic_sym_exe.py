@@ -28,9 +28,9 @@ class DynamicSysExec(ast.AstVisitor):
         normal_states = []
         for state in states:
             if state.is_error():
-                logging.error("Error State: " + str(state))
+                logging.error("Error State:\n" + str(state))
             elif state.is_infeasible():
-                logging.info("Infeasible State: " + str(state))
+                logging.info("Infeasible State:\n" + str(state))
             else:
                 normal_states.append(state)
         return normal_states
@@ -261,6 +261,7 @@ class DynamicSysExec(ast.AstVisitor):
                     state.mark_error_concrete()
                     states[index] = state
             else:
+
                 concrete_condition = self._execute_concrete_expression(node.cond, state.get_concrete_state())
                 sym_condition = self._execute_symbolic_expression(node.cond, state.get_symbolic_state())
                 state, counter_state = state.fork(sym_condition)
@@ -268,7 +269,7 @@ class DynamicSysExec(ast.AstVisitor):
                 # if concrete_condition is true, we know the sym_state is satisfiable
                 # but we want the sym_state to be valid
                 # add negation to the pc. if the not(pc) is unsatisfiable, then pc is valid
-                if counter_state is not None:
+                if not counter_state.is_infeasible():
                     state.mark_error_symbolic()
                 else:
                     if not concrete_condition:

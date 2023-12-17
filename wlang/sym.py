@@ -19,9 +19,9 @@ class SymExec(ast.AstVisitor):
         normal_states = []
         for state in states:
             if state.is_error():
-                logging.error("Error State: " + str(state))
+                logging.error("Error State:\n" + str(state))
             elif state.is_empty():
-                logging.info("Infeasible State: " + str(state))
+                logging.info("Infeasible State:\n" + str(state))
             else:
                 normal_states.append(state)
         return normal_states

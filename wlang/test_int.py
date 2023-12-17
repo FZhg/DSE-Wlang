@@ -22,7 +22,8 @@
 
 import unittest
 
-from . import ast, int
+from wlang import ast
+from wlang import int
 
 
 class TestInt(unittest.TestCase):
@@ -37,6 +38,6 @@ class TestInt(unittest.TestCase):
         # x is defined
         self.assertIn("x", st.env)
         # x is 10
-        self.assertEquals(st.env["x"], 10)
+        self.assertEqual(st.env["x"], 10)
         # no other variables in the state
-        self.assertEquals(len(st.env), 1)
+        self.assertEqual(len(st.env), 1)

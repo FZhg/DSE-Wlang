@@ -12,10 +12,10 @@ assert y = 1;
 assert x >= 22
 ________
 sym_state:
-x: 1 + x!0
+x: 1 + x!283
 y: 1
 z: 7
-pc: [20 < x!0, And(10 < x!0, 7 >= 7), 22 <= 1 + x!0]
+pc: [20 < x!283, And(10 < x!283, 7 >= 7), 22 <= 1 + x!283]
 
 concrete_state:
 x: 22

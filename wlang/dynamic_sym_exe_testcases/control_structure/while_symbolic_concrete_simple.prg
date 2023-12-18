@@ -1,22 +1,20 @@
 havoc x;
-if x > -2  then {
-    x := 1
-} else {
-    x := 2
+while x > 5 do {
+    x := 4
 }
 ________
 sym_state:
-x: 1
-pc: [-2 < x!60]
+x: x!64
+pc: [Not(5 < x!64)]
 
 concrete_state:
-x: 1
+x: 0
 ________
 sym_state:
-x: 2
-pc: [Not(-2 < x!60)]
+x: 4
+pc: [Not(Not(5 < x!64))]
 
 concrete_state:
-x: 2
+x: 4
 ________
 num_states: 2

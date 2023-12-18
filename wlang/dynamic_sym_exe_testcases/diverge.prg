@@ -4,9 +4,9 @@ if y * y = -1 + x * x *x - x  then {
 }
 ________
 sym_state:
-x: x!23
-y: y!24
-pc: [Not(y!24*y!24 == -1 + x!23*x!23*x!23 - x!23)]
+x: x!41
+y: y!42
+pc: [Not(y!42*y!42 == -1 + x!41*x!41*x!41 - x!41)]
 
 concrete_state:
 x: 0

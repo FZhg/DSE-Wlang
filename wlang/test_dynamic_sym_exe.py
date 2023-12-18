@@ -21,10 +21,8 @@ class TestDynamicSysExec(TestCase):
 
     def test_all_test_cases(self):
         file_paths = get_file_paths("wlang/dynamic_sym_exe_testcases")
-
         normal_exiting_testcases_paths = get_all_normal_exiting_testcases(file_paths)
         check_program_states_all_normal_exiting_testcases(self, normal_exiting_testcases_paths, self.engine, self.state_constructor)
-        #run_all_error_exiting_testcases(self, file_paths, self.engine, self.state_constructor)
 
 
 

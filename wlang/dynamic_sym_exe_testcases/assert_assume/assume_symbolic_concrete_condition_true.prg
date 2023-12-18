@@ -2,8 +2,8 @@ havoc x;
 assume x=0
 ________
 sym_state:
-x: x!34
-pc: [0 == x!34]
+x: x!54
+pc: [0 == x!54]
 
 concrete_state:
 x: 0

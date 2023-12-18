@@ -6,90 +6,90 @@ while x < 10 do {
 }
 ________
 sym_state:
-x: 11 + y!41
+x: 11 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(10 > 11 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(10 > 11 + y!61)]
 
 concrete_state:
 x: 11
 y: 4
 ________
 sym_state:
-x: 15 + y!41
+x: 15 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(10 > 15 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(10 > 15 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 19 + y!41
+x: 19 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(10 > 19 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(10 > 19 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 23 + y!41
+x: 23 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(Not(10 > 19 + y!41)), Not(10 > 23 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(Not(10 > 19 + y!61)), Not(10 > 23 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 27 + y!41
+x: 27 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(Not(10 > 19 + y!41)), Not(Not(10 > 23 + y!41)), Not(10 > 27 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(Not(10 > 19 + y!61)), Not(Not(10 > 23 + y!61)), Not(10 > 27 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 31 + y!41
+x: 31 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(Not(10 > 19 + y!41)), Not(Not(10 > 23 + y!41)), Not(Not(10 > 27 + y!41)), Not(10 > 31 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(Not(10 > 19 + y!61)), Not(Not(10 > 23 + y!61)), Not(Not(10 > 27 + y!61)), Not(10 > 31 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 35 + y!41
+x: 35 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(Not(10 > 19 + y!41)), Not(Not(10 > 23 + y!41)), Not(Not(10 > 27 + y!41)), Not(Not(10 > 31 + y!41)), Not(10 > 35 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(Not(10 > 19 + y!61)), Not(Not(10 > 23 + y!61)), Not(Not(10 > 27 + y!61)), Not(Not(10 > 31 + y!61)), Not(10 > 35 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 39 + y!41
+x: 39 + y!61
 y: 4
-pc: [10 > 3 + y!41, 10 > 7 + y!41, Not(Not(10 > 11 + y!41)), Not(Not(10 > 15 + y!41)), Not(Not(10 > 19 + y!41)), Not(Not(10 > 23 + y!41)), Not(Not(10 > 27 + y!41)), Not(Not(10 > 31 + y!41)), Not(Not(10 > 35 + y!41)), Not(10 > 39 + y!41)]
+pc: [10 > 3 + y!61, 10 > 7 + y!61, Not(Not(10 > 11 + y!61)), Not(Not(10 > 15 + y!61)), Not(Not(10 > 19 + y!61)), Not(Not(10 > 23 + y!61)), Not(Not(10 > 27 + y!61)), Not(Not(10 > 31 + y!61)), Not(Not(10 > 35 + y!61)), Not(10 > 39 + y!61)]
 
 concrete_state:
 x: 13
 y: 4
 ________
 sym_state:
-x: 7 + y!41
+x: 7 + y!61
 y: 4
-pc: [10 > 3 + y!41, Not(10 > 7 + y!41)]
+pc: [10 > 3 + y!61, Not(10 > 7 + y!61)]
 
 concrete_state:
 x: 10
 y: 4
 ________
 sym_state:
-x: 3 + y!41
+x: 3 + y!61
 y: 4
-pc: [Not(10 > 3 + y!41)]
+pc: [Not(10 > 3 + y!61)]
 
 concrete_state:
 x: 10

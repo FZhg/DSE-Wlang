@@ -79,9 +79,6 @@ class DynamicSysExec(ast.AstVisitor):
         }
 
     def _is_expression_symbolic(self, expression_node, program_state):
-        # TODO: smart concretization
-        undef_visitor = UndefVisitor()
-        undef_visitor.check(expression_node)
         used_variables = self.variable_extractor.get_variables(expression_node)
         return program_state.is_any_variable_symbolic(*used_variables)
 

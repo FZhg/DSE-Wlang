@@ -9,7 +9,7 @@ if y > 1 then {
 ________
 sym_state:
 x: 10
-y: y!49
+y: y!70
 pc: []
 
 concrete_state:

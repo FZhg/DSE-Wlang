@@ -41,7 +41,7 @@ class SymState(object):
         if self._is_infeasible:
             return self._is_infeasible
         res = self._solver.check()
-        self._is_infeasible = (res == z3.unsat)
+        self._is_infeasible = (res != z3.sat)
         return self._is_infeasible
 
     def pick_concrete(self, symbolic_variables, concrete_environment):
@@ -67,10 +67,10 @@ class SymState(object):
                 new_path_condition = z3.substitute(path_condition, (lhs, rhs))
                 new_solver.add(new_path_condition)
             new_solver.add(concretizing_path_condition)
+            new_solver.set("timeout", 1000)
             res = new_solver.check()
             if res == z3.sat:
                 self._solver = new_solver
-                self._solver.set("timeout", 1000)
 
         if res != z3.sat:
             self._is_infeasible = True
